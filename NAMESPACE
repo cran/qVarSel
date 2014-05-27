@@ -1,0 +1,4 @@
+useDynLib(qVarSel)
+export(qVarSelH, qVarSelLP, PrtDist)
+import(lpSolveAPI)
+importFrom(Rcpp, evalCpp)
