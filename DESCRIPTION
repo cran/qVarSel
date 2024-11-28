@@ -1,17 +1,29 @@
 Package: qVarSel
 Type: Package
-Title: Variables Selection for Clustering and Classification
-Version: 1.0
-Date: 2014-05-27
-Author: Stefano Benati
-Maintainer: Stefano Benati <stefano.benati@unitn.it>
-Description: For a given data matrix A and cluster centers/prototypes collected in the matrix P, the functions described here select a subset of statistic variables Q that mostly explains/justifies P as prototypes. The functions are useful to reduce the data dimension for classification and to discard masking variables for clustering.
-License: GPL-2
-Depends: lpSolveAPI
-Suggests: clusterGeneration, mclust
-Imports: Rcpp (>= 0.11.0)
+Title: Select Variables for Optimal Clustering
+Version: 1.1
+Date: 2024-11-24
+Authors@R: person(given = "Stefano",
+                    family = "Benati",
+                    role = c("aut", "cre"),
+                    email = "stefano.benati@unitn.it",
+                    comment = c(ORCID = " 0000-0002-1928-5224"))
+Description: Finding hidden clusters in structured data can be hindered
+  by the presence of masking variables. If not detected,
+  masking variables are used to calculate the overall similarities between units, 
+  and therefore the cluster attribution is more imprecise.
+  The algorithm q-vars implements an optimization method to find the variables
+  that most separate units between clusters. In this way, masking variables can be 
+  discarded from the data frame and the clustering is more accurate.
+  Tests can be found in Benati et al.(2017) <doi:10.1080/01605682.2017.1398206>.
+License: GPL (>= 2)
+Imports: Rcpp (>= 1.0.13), lpSolveAPI
+Suggests: mclust
 LinkingTo: Rcpp
-Packaged: 2014-06-12 11:14:53 UTC; USUARIO
+RoxygenNote: 7.3.2
 NeedsCompilation: yes
+Packaged: 2024-11-28 08:01:14 UTC; stefanobenati
+Author: Stefano Benati [aut, cre] (<https://orcid.org/0000-0002-1928-5224>)
+Maintainer: Stefano Benati <stefano.benati@unitn.it>
 Repository: CRAN
-Date/Publication: 2014-06-12 16:42:34
+Date/Publication: 2024-11-28 12:10:02 UTC

@@ -17,7 +17,7 @@ qVarSelH(d,
   \item{maxit}{A positive scalar, that is the maximum number of iteration allowed}
 }
 \details{
-The heuristic repeatedly selects a set of variables and then allocates units to prototypes, while a local optimum is reached. Random restart is used to continue the search until the maximum number of iteration is reached. 
+The heuristic repeatedly selects a set of variables and then allocates units to prototypes, while a local optimum is reached. Random restart is used to continue the search until the maximum number of iteration is reached.
 }
 \value{
 \item{obj}{The value of the objective function}
@@ -26,13 +26,13 @@ The heuristic repeatedly selects a set of variables and then allocates units to 
 \item{bestit}{The iteration in which the optimal solution is found}
 }
 \references{
-S. Benati, S. Garcia Quiles, J. Puerto "Optimization Methods to Select Variables for Clustering", Working Paper, Universidad de Sevilla, 2014
+S. Benati, S. Garcia Quiles, J. Puerto "Mixed Integer Linear Programming and heuristic methods for feature selection in clustering", Journal of the Operational Research Society, 69:9, (2018), pp. 1379-1395
 }
 \author{
 Stefano Benati
 }
 \note{
-The methodology is heuristic and some steps are random. It may be the case that different runs provide different solutions. 
+The methodology is heuristic and some steps are random. It may be the case that different runs provide different solutions.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -41,28 +41,33 @@ The methodology is heuristic and some steps are random. It may be the case that 
 qVarSelLP
 }
 \examples{
+# Simulated data with 100 units, 10 true variables,
+# 10 masking variables, 2 hidden clusters
 
-## Generate random 2 cluster with 20 masking variables
-## and 10 true variables
-  
-require(clusterGeneration)
-tmp1 <- genRandomClust(numClust = 2, sepVal = 0.2, clustszind = 2,
-                         rangeN = c( 100, 150 ),
-                         numNonNoisy = 10, numNoisy = 20, numReplicate = 1, 
-                         fileName = "chk1")
-a <- tmp1$datList$chk1_1
-a <- scale(a)  # Standardize for column
+n1 = 50
+n2 = 50
+n_true_var = 10
+n_mask_var = 10
+g1 = matrix(rnorm(n1*n_true_var, 0, 1), ncol = n_true_var)
+g2 = matrix(rnorm(n2*n_true_var, 2, 1), ncol = n_true_var)
+m1 = matrix(runif((n1 + n2)*n_mask_var, min = 0, max = 5), ncol = n_mask_var)
+a = cbind(rbind(g1, g2), m1)
 
+## calculate data prototypes using k-means
 
-## Calculate two prototype, using kmeans
-y <- kmeans(a, 2, iter.max = 200, nstart = 10)
-p = y$centers
+sl2 <- kmeans(a, 2, iter.max = 100, nstart = 2)
+p = sl2$centers
 
-## Calculate dist:
-d <- PrtDist(a, p)
-           
-## Calculate Best 10 variables:
+## calculate distances between observations and prototypes
+## Remark: d is a 3-dimensions matrix
+
+d = PrtDist(a, p)
+
+## Select 10 most representative variables, use heuristic
+
 lsH <- qVarSelH(d, 10, maxit = 200)
+
+
 
 }
 \keyword{ classif }

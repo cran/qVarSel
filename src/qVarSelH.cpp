@@ -1,22 +1,27 @@
 #include <Rcpp.h>
+#include <Rmath.h>
+
 using namespace Rcpp;
 
-void random01qvector(int *z, int n, int q){
-  int x;
-  for (int i = 0; i <= n; i++)
+
+
+void random01qvector_r(int *z, int n, int q){
+  IntegerVector x(n), s(q);
+  NumericVector rn = rnorm(10);
+  for (int i = 0; i < n; i++)
+    x[i] = i+1;
+  IntegerVector s0 = sample(x, q, FALSE);
+  //int u = s0[1];
+  //double l = rn[1];
+  for (int i = 0; i < n; i++)
     z[i] = 0;
-  int num = 0;
-  while (num < q){
-    x = rand()%n + 1;
-    if ( (double) z[x] < 0.5 ){
-      z[x] = 1;
-      num += 1;
-    }
-  }
+  for (int i = 0; i < q; i++)
+    z[s0[i]] = 1;
 }
 
-void updatebestsolution(double *obj, double *objbest, int *z, int *zbest, 
-                        int q, int *ass, int *assbest, int n, 
+
+void updatebestsolution(double *obj, double *objbest, int *z, int *zbest,
+                        int q, int *ass, int *assbest, int n,
     				            int *it, int *itbest)
 {
 	*objbest = *obj;
@@ -41,12 +46,12 @@ void bestassignement(double ***multdist, double **dist, int *z, double *objfun, 
 		for (int j = 0; j <= p; j++)
 			dist[i][j] = 0;
 	for (int k = 1; k <= q; k++)
-		if (z[k] >= 0.99){ 
+		if (z[k] >= 0.99){
 		for (int i = 0;  i <= n; i++)
 			for (int j = 0; j <= p; j++)
 				dist[i][j] += multdist[i][j][k] ;
 		}
-	
+
 	*objfun = 0.0;
 	for (int i = 1; i <= n; i++){
 		MinRow = INT_MAX;
@@ -112,7 +117,7 @@ List VarSelH(NumericVector a, int n, int p, int q, int qstar, int MaxIt) {
   int a_size = a.size();
   if (a_size != n*p*q)
     return Rcpp::List::create(Named("Msg", "Dimensione Matrice Dati Input Sbagliata ") );
-  if (qstar > q)   
+  if (qstar > q)
     return Rcpp::List::create(Named("Msg", "Numero variabili troppo alto ") );
   dist = new double**[n+1];
   for(int i=0; i<=n; i++){
@@ -123,17 +128,17 @@ List VarSelH(NumericVector a, int n, int p, int q, int qstar, int MaxIt) {
   for (int i = 1; i <= n; i++)
       for (int j = 1; j <= p; j++)
         for (int k = 1; k <= q; k++)
-            dist[i][j][k] = (double) a[(i - 1) + n*(j - 1) + (n*p)*(k - 1)]; 
+            dist[i][j][k] = (double) a[(i - 1) + n*(j - 1) + (n*p)*(k - 1)];
   totaldist = new double*[n + 1];
   for (int i = 0; i <= n; i++)
     totaldist[i] = new double[p + 1];
-  z = new int[q + 1]; 
+  z = new int[q + 1];
   zbest = new int[q + 1];
   iass = new int[n + 1];
   assbest = new int[n + 1];
   sumdist = new double[q + 1];
   //int maxlastupdate = 1000*q;
-  srand(1);
+  //srand(1);
   int it = 0;
   int itbest = 0;
   double ubbest = INT_MAX;
@@ -142,7 +147,8 @@ List VarSelH(NumericVector a, int n, int p, int q, int qstar, int MaxIt) {
   int localit = 0;
   //while( it - itbest < maxlastupdate){
   while (it < MaxIt + 1){
-    random01qvector(z, q, qstar);
+    //random01qvector(z, q, qstar);
+    random01qvector_r(z, q, qstar);
     answer = 0;
     localit = 0;
     objold = INT_MAX;
@@ -150,12 +156,12 @@ List VarSelH(NumericVector a, int n, int p, int q, int qstar, int MaxIt) {
       localit += 1;
       it += 1;
       if (localit%2 == 1){
-        bestassignement(dist, totaldist, z, &objnew, iass, n, p, q);    				    
+        bestassignement(dist, totaldist, z, &objnew, iass, n, p, q);
 		  } else {
-			  bestvariables(dist, sumdist, iass, &objnew, z, n, p, q, qstar);      
-		  }		
+			  bestvariables(dist, sumdist, iass, &objnew, z, n, p, q, qstar);
+		  }
 		  if (objnew + epsilon < ubbest)
-			  updatebestsolution(&objnew, &ubbest, z, zbest, q, iass, assbest, n, &it, &itbest);		
+			  updatebestsolution(&objnew, &ubbest, z, zbest, q, iass, assbest, n, &it, &itbest);
 		  if (objnew + epsilon >= objold){
 			  answer = 1;  // exit while
 		} else {
@@ -168,10 +174,12 @@ List VarSelH(NumericVector a, int n, int p, int q, int qstar, int MaxIt) {
   for (int k = 0; k < q; k++)
     zbis[k] = zbest[k + 1];
   for (int i = 0; i < n; i++)
-    iassbis[i] = assbest[i + 1];    
+    iassbis[i] = assbest[i + 1];
   pi = ubbest;
   return Rcpp::List::create(Named("obj", pi),
-                            Named("x",zbis), 
+                            Named("x",zbis),
                             Named("ass", iassbis),
                             Named("bestit", itbest));
 }
+
+

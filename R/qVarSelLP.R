@@ -2,10 +2,6 @@ library(lpSolveAPI)
 library(Rcpp)
 
 locL2 <- function(i, j, k, m, p){
-  # assume 111, 121, 131,   1p1, 211, 221, ....2p1, 311, ...., mp1
-  # assume 112, 122, 132,   1n2, 212, 222, ....2n2, 312, ...., mp2
-  # eccetera
-  # m = numero unità statistiche
   lb1 = (k-1)*m*p
   lb2 = (i - 1)*p
   lb3 = j
@@ -42,7 +38,7 @@ qVarSelLP<- function(d, q, binary = FALSE, write = FALSE){
       }
     }
   }
-  set.objfn(lps.model, obj)	
+  set.objfn(lps.model, obj)
   for (i in 1:m){
     for (k in 1:n){
       for (j in 1:p){
@@ -56,7 +52,7 @@ qVarSelLP<- function(d, q, binary = FALSE, write = FALSE){
       a = c(a, -1)
       ind = c(ind, m*p*n + k )
       add.constraint(lps.model, a, type = "=",
-                     0, indices = ind) 
+                     0, indices = ind)
     }
   }
   for (i in 1:m){
@@ -76,7 +72,7 @@ qVarSelLP<- function(d, q, binary = FALSE, write = FALSE){
       }
     }
   }
-  
+
   for (k in 1:n){
     if (k == 1){
       a = 1
@@ -91,11 +87,11 @@ qVarSelLP<- function(d, q, binary = FALSE, write = FALSE){
      set.type(lps.model, (m*p*n + 1):ncol, type = "binary") }
   n1 = m*n
   cn1 = paste("C", 1:n1, sep = "")
-  n2 = m*p*n 
+  n2 = m*p*n
   cn2 = paste("D", 1:n2, sep = "")
   dimnames(lps.model) = list( a = c(cn1, cn2, "F1"), b = vnames )
   if ( write == T)
-            write.lp(lps.model, filename = "qdistsel.lp", type = "lp", 
+            write.lp(lps.model, filename = "qdistsel.lp", type = "lp",
             use.names = c("TRUE", "TRUE"))
   lp.control(lps.model, bb.depthlimit = 0)
   sol = solve(lps.model)
@@ -122,7 +118,7 @@ PrtDist <- function(a, p){
     return("Number of columns incorrect")
   dist <- array(0, dim = c(numunits, nummedians, numvariables))
   for (i in 1:numunits){
-    for (j in 1:nummedians){      
+    for (j in 1:nummedians){
       dist[i,j, ] = (a[i, ] - p[j, ])^2.0
     }}
   return(dist)
